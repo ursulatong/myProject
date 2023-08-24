@@ -19,8 +19,8 @@ public class QRCodeGenerator {
 
   private static Logger logger = LoggerFactory.getLogger(QRCodeGenerator.class);
 
-  public static void generateQRCode(Student student) {
-    String qrCodePath = "C:\\QRCode\\";  // the file's path you store the QRCodes
+ public static void generateQRCode(Student student) {
+    String qrCodePath = "C:\\Users\\ursula.tong\\Documents\\myProject\\sb-qrcode-demo\\qrCode\\";  // the file's path you store the QRCodes
     String qrCodeName = qrCodePath + student.getFirstName() + student.getId() + "QRCODE.png";
 
     logger.info("qrCodeName: {}", qrCodeName);
@@ -28,11 +28,16 @@ public class QRCodeGenerator {
     try {
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
 
-        BitMatrix bitMatrix = qrCodeWriter.encode(
-                "ID: " + student.getId() + "\n" + "Firstname: " + student.getFirstName() + "\n"
-                        + "Lastname: " + student.getLastName() + "\n" + "Email: " + student.getEmail() + "\n"
-                        + "Mobile: " + student.getMobile(),
-                BarcodeFormat.QR_CODE, 400, 400);
+         String studentDetails = "ID: " + student.getId() + "\n"
+                + "Firstname: " + student.getFirstName() + "\n"
+                + "Lastname: " + student.getLastName() + "\n"
+                + "Email: " + student.getEmail() + "\n"
+                + "Mobile: " + student.getMobile() + "\n"
+                + "Date of Birth: " + student.getDateOfBirth() + "\n"
+                + "Nationality: " + student.getNationality() + "\n"
+                + "Address: " + student.getAddress() + "\n";
+
+        BitMatrix bitMatrix = qrCodeWriter.encode(studentDetails,BarcodeFormat.QR_CODE, 400, 400);
 
         logger.info("bitMatrix: {}", bitMatrix);
 
@@ -49,6 +54,15 @@ public class QRCodeGenerator {
             }
         }
 
+        // Check if a QR code for this student already exists
+        if (file.exists()) {
+            boolean deleted = file.delete();
+                    logger.info("File has been found and delete");
+            if (!deleted) {
+                logger.warn("Failed to delete existing QR code for student: {}", student.getId());
+            }
+        }
+
         MatrixToImageWriter.writeToPath(bitMatrix, "PNG", path);
 
     } catch (WriterException e) {
@@ -57,4 +71,7 @@ public class QRCodeGenerator {
         logger.error("Error writing QR code to file: {}", qrCodeName, e);
     }
 }
+
+
+
 }
